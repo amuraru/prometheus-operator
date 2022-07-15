@@ -191,7 +191,10 @@ func (o *Operator) selectRules(t *monitoringv1.ThanosRuler, namespaces []string)
 	for _, ns := range namespaces {
 		var marshalErr error
 		err := o.ruleInfs.ListAllByNamespace(ns, ruleSelector, func(obj interface{}) {
-			promRule := obj.(*monitoringv1.PrometheusRule).DeepCopy()
+			promRule := obj.(*monitoringv1.PrometheusRule)
+			promRule = promRule.DeepCopy()
+			promRule.APIVersion = monitoringv1.SchemeGroupVersion.String()
+			promRule.Kind = monitoringv1.PrometheusRuleKind
 
 			if err := nsLabeler.EnforceNamespaceLabel(promRule); err != nil {
 				marshalErr = err
